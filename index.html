@@ -22,264 +22,228 @@
             --success-bg: #ecfdf5;
             --warning-bg: #fffbeb;
             --danger-bg: #fef2f2;
-            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
+            font-size: 13px;
             line-height: 1.5;
-            font-size: 14px;
         }
         
         /* Шапка */
         .header {
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            padding: 0 32px;
+            padding: 0 24px;
             height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
-        .header-title {
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
+        .header-title { font-size: 15px; font-weight: 600; }
+        .header-subtitle { font-size: 11px; color: var(--text-secondary); margin-left: 6px; }
         
-        .header-subtitle {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-left: 8px;
-        }
-        
-        /* Кнопки */
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
+            gap: 5px;
+            padding: 7px 14px;
             border: none;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 5px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.15s;
             font-family: inherit;
+            white-space: nowrap;
         }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
+        .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-        
-        .btn-secondary {
-            background: var(--white);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
+        .btn-secondary { background: var(--white); color: var(--text); border: 1px solid var(--border); }
         .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger { background: none; color: var(--danger); padding: 4px 8px; font-size: 11px; }
+        .btn-danger:hover { background: var(--danger-bg); border-radius: 4px; }
         
-        .btn-danger {
-            background: none;
-            color: var(--danger);
-            border: 1px solid transparent;
+        .stat {
+            text-align: center;
+            padding: 0 14px;
+            border-left: 1px solid var(--border);
         }
-        .btn-danger:hover { background: var(--danger-bg); }
+        .stat:first-child { border-left: none; }
+        .stat-value { font-size: 18px; font-weight: 700; }
+        .stat-label { font-size: 10px; color: var(--text-secondary); margin-top: 1px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .stat-danger { color: var(--danger); }
+        .stat-warning { color: var(--warning); }
         
-        /* Основной контент */
-        .main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px;
+        /* Сетка */
+        .main { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
+        
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 20px;
+            align-items: start;
         }
         
         /* Карточки */
         .card {
             background: var(--white);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 6px;
             box-shadow: var(--shadow);
         }
-        
         .card-header {
-            padding: 16px 20px;
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border);
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+        .card-body { padding: 16px; }
         
-        .card-body {
-            padding: 20px;
-        }
-        
-        /* Сетка */
-        .grid { display: grid; gap: 24px; }
-        .grid-2 { grid-template-columns: 340px 1fr; }
-        
-        /* Инпуты */
+        /* Инпут */
         .input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 7px 10px;
             border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 14px;
+            border-radius: 5px;
+            font-size: 13px;
             font-family: inherit;
             outline: none;
-            transition: border-color 0.15s;
         }
-        .input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.08); }
         
-        .input-group {
-            display: flex;
-            gap: 8px;
-        }
+        .field { margin-bottom: 10px; }
+        .field label { display: block; font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
         
-        /* Таблицы */
+        .toast { font-size: 11px; color: var(--success); margin-top: 6px; }
+        
+        /* Таблица */
         .table-wrap {
-            overflow-x: auto;
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
         
         th {
             text-align: left;
-            padding: 10px 16px;
-            font-size: 12px;
-            font-weight: 500;
+            padding: 8px 10px;
+            font-size: 10px;
+            font-weight: 600;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             border-bottom: 2px solid var(--border);
-            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 1;
         }
         
         td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f1f3;
         }
         
         tr:hover td { background: #fafbfc; }
         
-        /* Бейджи статусов */
         .badge {
             display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 2px 7px;
+            border-radius: 3px;
+            font-size: 11px;
             font-weight: 500;
         }
-        
         .badge-ok { background: var(--success-bg); color: var(--success); }
         .badge-warn { background: var(--warning-bg); color: var(--warning); }
         .badge-danger { background: var(--danger-bg); color: var(--danger); }
         
-        /* Индикаторы */
-        .dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
+        .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
         .dot-ok { background: var(--success); }
         .dot-warn { background: var(--warning); }
         .dot-danger { background: var(--danger); }
         
         /* Аномалии */
+        .anomaly-list {
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+        }
+        
         .anomaly-item {
-            padding: 12px 16px;
+            padding: 10px 12px;
             border-left: 3px solid;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             background: #fafbfc;
-            border-radius: 0 6px 6px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 11px;
         }
-        
         .anomaly-risk { border-left-color: var(--warning); }
-        .anomaly-debt { border-left-color: var(--danger); }
+        .anomaly-debt { border-left-color: #f97316; }
         .anomaly-bankrupt { border-left-color: #991b1b; background: #fef2f2; }
+        .anomaly-court { border-left-color: #eab308; }
         
-        .anomaly-date {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
+        .anomaly-date { color: var(--text-secondary); margin-bottom: 2px; }
+        .anomaly-name { font-weight: 600; font-size: 12px; margin-bottom: 2px; }
+        .anomaly-desc { color: var(--text-secondary); }
         
-        .anomaly-name {
+        .anomaly-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
             font-weight: 600;
-            font-size: 13px;
             margin-bottom: 4px;
         }
+        .anomaly-badge-bankrupt { background: #fef2f2; color: #991b1b; }
+        .anomaly-badge-debt { background: #fff7ed; color: #c2410c; }
+        .anomaly-badge-risk { background: #fffbeb; color: #b45309; }
         
-        .anomaly-desc {
-            font-size: 13px;
+        .empty { text-align: center; padding: 24px; color: var(--text-secondary); font-size: 12px; }
+        
+        /* Кнопка загрузки */
+        .btn-demo {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px dashed var(--border);
             color: var(--text-secondary);
-        }
-        
-        /* Счётчики в шапке */
-        .stat {
-            text-align: center;
-            padding: 0 16px;
-            border-left: 1px solid var(--border);
-        }
-        .stat:first-child { border-left: none; }
-        .stat-value { font-size: 20px; font-weight: 700; }
-        .stat-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-        .stat-danger { color: var(--danger); }
-        .stat-warning { color: var(--warning); }
-        
-        /* Сообщение о добавлении */
-        .toast {
-            font-size: 12px;
-            color: var(--success);
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
             margin-top: 8px;
-            font-weight: 500;
         }
-        
-        /* Пустое состояние */
-        .empty {
-            text-align: center;
-            padding: 32px;
-            color: var(--text-secondary);
-            font-size: 13px;
-        }
+        .btn-demo:hover { background: #f1f5f9; color: var(--text); }
     </style>
 </head>
 <body x-data="app()" x-init="init()">
     
-    <!-- Шапка -->
     <header class="header">
         <div style="display: flex; align-items: baseline;">
             <span class="header-title">Мониторинг контрагентов</span>
             <span class="header-subtitle">v1.0</span>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 0;">
+        <div style="display: flex; align-items: center;">
             <div class="stat">
                 <div class="stat-value" x-text="contractors.length">0</div>
-                <div class="stat-label">на наблюдении</div>
+                <div class="stat-label">всего</div>
             </div>
             <div class="stat">
                 <div class="stat-value stat-warning" x-text="highRiskCount()">0</div>
-                <div class="stat-label">высокий риск</div>
+                <div class="stat-label">риск</div>
             </div>
             <div class="stat">
                 <div class="stat-value stat-danger" x-text="anomalies.length">0</div>
@@ -293,130 +257,122 @@
         </button>
     </header>
     
-    <!-- Основной контент -->
     <main class="main">
-        <div class="grid grid-2">
+        <div class="layout">
             
-            <!-- ЛЕВАЯ КОЛОНКА -->
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-                
-                <!-- Добавление ИНН -->
+            <!-- ЛЕВАЯ КОЛОНКА: Добавление -->
+            <div>
                 <div class="card">
                     <div class="card-header">Добавить контрагента</div>
                     <div class="card-body">
-                        <div class="input-group">
-                            <input type="text" 
-                                   class="input" 
-                                   x-model="newInn" 
+                        <div class="field">
+                            <label>ИНН организации</label>
+                            <input type="text" class="input" x-model="newInn" 
                                    @keyup.enter="addContractor()"
-                                   placeholder="ИНН (10 или 12 цифр)"
-                                   maxlength="12">
-                            <button class="btn btn-primary" @click="addContractor()"
-                                    :disabled="!newInn || newInn.length < 10">
-                                Добавить
-                            </button>
+                                   placeholder="10 или 12 цифр" maxlength="12">
                         </div>
-                        <div class="toast" x-show="lastAdded" x-text="lastAdded"></div>
-                    </div>
-                </div>
-                
-                <!-- Действия -->
-                <div class="card">
-                    <div class="card-header">Действия</div>
-                    <div class="card-body" style="display: flex; flex-direction: column; gap: 8px;">
-                        <button class="btn btn-secondary" @click="addDemoData()">
-                            Загрузить демо-данные
+                        <button class="btn btn-primary" style="width: 100%; justify-content: center;" 
+                                @click="addContractor()"
+                                :disabled="!newInn || newInn.length < 10">
+                            Добавить
                         </button>
-                        <button class="btn btn-danger" @click="clearAll()">
-                            Очистить все данные
+                        <div class="toast" x-show="lastAdded" x-text="lastAdded"></div>
+                        
+                        <button class="btn-demo" @click="addDemoData()">
+                            Загрузить демо-данные (28 компаний)
+                        </button>
+                        <button class="btn-demo" @click="clearAll()" style="color: var(--danger);">
+                            Очистить всё
                         </button>
                     </div>
                 </div>
             </div>
             
-            <!-- ПРАВАЯ КОЛОНКА -->
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-                
-                <!-- Таблица контрагентов -->
-                <div class="card">
-                    <div class="card-header">
-                        Контрагенты
-                        <span style="font-weight: 400; color: var(--text-secondary); font-size: 13px;" 
-                              x-text="contractors.length + ' записей'"></span>
-                    </div>
-                    
-                    <div class="table-wrap" x-show="contractors.length > 0">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ИНН</th>
-                                    <th>Наименование</th>
-                                    <th>Риск</th>
-                                    <th>Статус</th>
-                                    <th>Задолженность</th>
-                                    <th>Суды</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template x-for="(c, idx) in contractors" :key="c.inn">
-                                    <tr>
-                                        <td style="font-family: monospace; font-size: 13px;" x-text="c.inn"></td>
-                                        <td x-text="c.name || '—'"></td>
-                                        <td>
-                                            <span x-show="c.risk" class="badge" 
-                                                  :class="c.risk < 30 ? 'badge-ok' : c.risk < 60 ? 'badge-warn' : 'badge-danger'"
-                                                  x-text="c.risk + '/100'"></span>
-                                            <span x-show="!c.risk" style="color: var(--text-secondary);">—</span>
-                                        </td>
-                                        <td>
-                                            <span x-show="c.status">
-                                                <span class="dot" :class="c.status === 'OK' ? 'dot-ok' : c.status === 'WARNING' ? 'dot-warn' : 'dot-danger'"></span>
-                                                <span x-text="c.status === 'OK' ? 'OK' : c.status === 'WARNING' ? 'Внимание' : 'Опасно'"></span>
-                                            </span>
-                                            <span x-show="!c.status" style="color: var(--text-secondary);">—</span>
-                                        </td>
-                                        <td x-text="c.fssp_debt ? c.fssp_debt.toLocaleString() + ' ₽' : '—'"></td>
-                                        <td x-text="c.court_cases || '—'"></td>
-                                        <td>
-                                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;" 
-                                                    @click="removeContractor(idx)">Удалить</button>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="empty" x-show="contractors.length === 0">
-                        Нет контрагентов. Добавьте первый ИНН слева.
-                    </div>
+            <!-- ЦЕНТР: Таблица -->
+            <div class="card">
+                <div class="card-header">
+                    Контрагенты на наблюдении
+                    <span style="font-weight: 400; color: var(--text-secondary);" x-text="contractors.length + ' зап.'"></span>
                 </div>
                 
-                <!-- Аномалии -->
-                <div class="card">
-                    <div class="card-header">
-                        Обнаруженные аномалии
-                        <span style="font-weight: 400; color: var(--text-secondary); font-size: 13px;" 
-                              x-show="anomalies.length > 0" x-text="anomalies.length + ' записей'"></span>
-                    </div>
-                    
-                    <div class="card-body" x-show="anomalies.length > 0" style="padding: 12px 20px;">
-                        <template x-for="a in anomalies.slice().reverse()" :key="a.date + a.inn">
-                            <div class="anomaly-item" 
-                                 :class="a.type === 'BANKRUPTCY' ? 'anomaly-bankrupt' : a.type.includes('DEBT') ? 'anomaly-debt' : 'anomaly-risk'">
-                                <div class="anomaly-date" x-text="a.date"></div>
-                                <div class="anomaly-name" x-text="a.inn + ' — ' + a.name"></div>
-                                <div class="anomaly-desc" x-text="a.description"></div>
-                            </div>
-                        </template>
-                    </div>
-                    
-                    <div class="empty" x-show="anomalies.length === 0">
-                        Аномалий не обнаружено.
-                    </div>
+                <div class="table-wrap" x-show="contractors.length > 0">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 110px;">ИНН</th>
+                                <th>Наименование</th>
+                                <th style="width: 70px;">Риск</th>
+                                <th style="width: 90px;">Статус</th>
+                                <th style="width: 110px;">Задолженность</th>
+                                <th style="width: 50px;">Суды</th>
+                                <th style="width: 60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(c, idx) in contractors" :key="c.inn">
+                                <tr>
+                                    <td style="font-family: 'SF Mono', 'Consolas', monospace;" x-text="c.inn"></td>
+                                    <td x-text="c.name || '—'"></td>
+                                    <td>
+                                        <span x-show="c.risk" class="badge" 
+                                              :class="c.risk < 30 ? 'badge-ok' : c.risk < 60 ? 'badge-warn' : 'badge-danger'"
+                                              x-text="c.risk + '/100'"></span>
+                                        <span x-show="!c.risk" style="color: var(--text-secondary);">—</span>
+                                    </td>
+                                    <td>
+                                        <span x-show="c.status">
+                                            <span class="dot" :class="c.status === 'OK' ? 'dot-ok' : c.status === 'WARNING' ? 'dot-warn' : 'dot-danger'"></span>
+                                            <span x-text="c.status === 'OK' ? 'OK' : c.status === 'WARNING' ? 'Внимание' : 'Опасно'"></span>
+                                        </span>
+                                        <span x-show="!c.status" style="color: var(--text-secondary);">—</span>
+                                    </td>
+                                    <td x-text="c.fssp_debt ? c.fssp_debt.toLocaleString() + ' ₽' : '—'"></td>
+                                    <td x-text="c.court_cases || '—'"></td>
+                                    <td>
+                                        <button class="btn-danger" @click="removeContractor(idx)">Удалить</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="empty" x-show="contractors.length === 0">
+                    Нет контрагентов.<br>Добавьте ИНН или загрузите демо-данные.
                 </div>
             </div>
+            
+            <!-- ПРАВАЯ КОЛОНКА: Аномалии -->
+            <div class="card">
+                <div class="card-header" style="border-bottom-color: #fecaca;">
+                    ⚠️ Обнаруженные аномалии
+                    <span x-show="anomalies.length > 0" 
+                          style="background: #fef2f2; color: var(--danger); padding: 2px 8px; border-radius: 10px; font-size: 11px;"
+                          x-text="anomalies.length"></span>
+                </div>
+                
+                <div class="anomaly-list" x-show="anomalies.length > 0" style="padding: 10px 12px;">
+                    <template x-for="a in anomalies.slice().reverse()" :key="a.date + a.inn + a.type">
+                        <div class="anomaly-item" 
+                             :class="a.type === 'BANKRUPTCY' ? 'anomaly-bankrupt' : 
+                                     a.type.includes('DEBT') ? 'anomaly-debt' : 
+                                     a.type === 'COURT_SPIKE' ? 'anomaly-court' : 'anomaly-risk'">
+                            <div class="anomaly-badge"
+                                 :class="a.type === 'BANKRUPTCY' ? 'anomaly-badge-bankrupt' : 
+                                         a.type.includes('DEBT') ? 'anomaly-badge-debt' : 'anomaly-badge-risk'"
+                                 x-text="anomalyTypeText(a.type)"></div>
+                            <div class="anomaly-date" x-text="a.date"></div>
+                            <div class="anomaly-name" x-text="a.name"></div>
+                            <div class="anomaly-desc" x-text="a.description"></div>
+                        </div>
+                    </template>
+                </div>
+                
+                <div class="empty" x-show="anomalies.length === 0">
+                    Аномалий не обнаружено.
+                </div>
+            </div>
+            
         </div>
     </main>
     
@@ -448,53 +404,55 @@
                 addContractor() {
                     const inn = this.newInn.trim();
                     if (!inn || inn.length < 10) return;
-                    
                     if (this.contractors.find(c => c.inn === inn)) {
-                        this.lastAdded = 'Этот ИНН уже в списке';
+                        this.lastAdded = '⚠ Уже в списке';
                         return;
                     }
-                    
                     const name = this.getCompanyName(inn);
-                    
                     this.contractors.push({
-                        inn, name,
-                        risk: null, status: null, fssp_debt: null,
-                        court_cases: null, added: new Date().toISOString()
+                        inn, name, risk: null, status: null,
+                        fssp_debt: null, court_cases: null,
+                        added: new Date().toISOString()
                     });
-                    
-                    this.lastAdded = `Добавлен: ${name}`;
+                    this.lastAdded = `✓ Добавлен: ${name}`;
                     this.newInn = '';
                     this.save();
                 },
                 
                 getCompanyName(inn) {
                     const demo = {
-                        '7736207543': 'ООО Яндекс',
-                        '7707270050': 'ООО Сбербанк-Сервис',
-                        '7707083893': 'ПАО Сбербанк',
-                        '5029255630': 'ООО Рога и Копыта',
-                        '1234567890': 'ООО Однодневка',
+                        '7736207543': 'ООО Яндекс', '7707270050': 'ООО Сбербанк-Сервис',
+                        '7707083893': 'ПАО Сбербанк', '5029255630': 'ООО Рога и Копыта',
+                        '1234567890': 'ООО Однодневка', '6677990011': 'ООО СтройГарант',
+                        '7712345678': 'АО ТрансНефть', '7801234567': 'ООО Газпром-Автоматизация',
+                        '7723456789': 'ПАО Ростелеком', '5001234567': 'ЗАО АгроИнвест',
+                        '5501234567': 'ООО СибПром', '7701123456': 'АО Альфа-Банк',
+                        '7702234567': 'ПАО ВТБ', '7703345678': 'ООО Роснефть-Сервис',
+                        '7704456789': 'АО Почта России', '7705567890': 'ООО Магнит-ИТ',
+                        '7706678901': 'ПАО Аэрофлот', '7707789012': 'ООО X5 Технологии',
+                        '7708890123': 'АО Тинькофф Банк', '7709901234': 'ООО Озон Технологии',
+                        '7710012345': 'ПАО МегаФон', '7711123456': 'ООО Яндекс.Такси',
+                        '7712234567': 'АО ВкусВилл', '7713345678': 'ООО Самокат',
+                        '7714456789': 'ПАО МТС', '7715567890': 'ООО Сибур Диджитал',
                     };
                     if (demo[inn]) return demo[inn];
-                    return 'Контрагент ' + inn.slice(-4);
+                    const prefixes = ['ООО', 'ЗАО', 'АО', 'ПАО', 'ИП'];
+                    const names = ['ТехноПром', 'ИнвестГрупп', 'ТоргСервис', 'СтройМонтаж', 'ИТ-Решения', 'ЛогистикПро', 'АгроСоюз', 'МедСервис'];
+                    return prefixes[Math.floor(Math.random() * prefixes.length)] + ' ' + 
+                           names[Math.floor(Math.random() * names.length)];
                 },
                 
-                removeContractor(idx) {
-                    this.contractors.splice(idx, 1);
-                    this.save();
-                },
+                removeContractor(idx) { this.contractors.splice(idx, 1); this.save(); },
                 
                 async checkAll() {
                     if (this.isChecking || this.contractors.length === 0) return;
                     this.isChecking = true;
                     
                     for (let i = 0; i < this.contractors.length; i++) {
-                        await this.sleep(300 + Math.random() * 500);
-                        
+                        await this.sleep(200 + Math.random() * 300);
                         const prevRisk = this.contractors[i].risk;
                         const prevDebt = this.contractors[i].fssp_debt || 0;
                         const prevCases = this.contractors[i].court_cases || 0;
-                        
                         const check = this.simulateCheck(this.contractors[i].inn);
                         
                         this.contractors[i].risk = check.risk;
@@ -505,7 +463,6 @@
                         
                         this.detectAnomalies(this.contractors[i], prevRisk, prevDebt, prevCases, check);
                     }
-                    
                     this.isChecking = false;
                     this.save();
                 },
@@ -514,15 +471,15 @@
                     const seed = inn.split('').reduce((a, b) => a + parseInt(b), 0);
                     const rng = (min, max) => Math.floor(((seed * 137 + Date.now() % 1000) % 100) / 100 * (max - min) + min);
                     
-                    const fssp_debt = rng(0, 100) < 20 ? rng(50000, 2000000) : 0;
-                    const court_cases = rng(0, 15);
+                    const fssp_debt = rng(0, 100) < 18 ? rng(30000, 3000000) : 0;
+                    const court_cases = rng(0, 18);
                     const is_bankrupt = rng(0, 100) < 2;
                     
                     let risk = rng(0, 15);
-                    if (fssp_debt > 500000) risk += 30;
-                    else if (fssp_debt > 0) risk += 15;
-                    if (court_cases > 8) risk += 25;
-                    else if (court_cases > 3) risk += 10;
+                    if (fssp_debt > 1000000) risk += 35;
+                    else if (fssp_debt > 100000) risk += 20;
+                    if (court_cases > 10) risk += 30;
+                    else if (court_cases > 5) risk += 15;
                     if (is_bankrupt) risk += 50;
                     risk = Math.min(100, Math.max(1, risk));
                     
@@ -530,45 +487,62 @@
                 },
                 
                 detectAnomalies(c, prevRisk, prevDebt, prevCases, current) {
-                    if (prevRisk !== null && current.risk - prevRisk >= 20) {
-                        this.addAnomaly(c, 'RISK_SPIKE', `Риск вырос с ${prevRisk} до ${current.risk}`, prevRisk, current.risk);
+                    const add = (type, desc, oldV, newV) => {
+                        this.anomalies.push({
+                            date: new Date().toLocaleString('ru-RU'),
+                            inn: c.inn, name: c.name, type, description: desc,
+                            old_value: String(oldV), new_value: String(newV)
+                        });
+                    };
+                    
+                    if (prevRisk !== null && current.risk - prevRisk >= 15) {
+                        add('RISK_SPIKE', `Риск вырос с ${prevRisk} до ${current.risk} баллов`, prevRisk, current.risk);
                     }
                     if (prevDebt === 0 && current.fssp_debt > 0) {
-                        this.addAnomaly(c, 'NEW_DEBT', 'Появилась задолженность ФССП', '0 ₽', current.fssp_debt.toLocaleString() + ' ₽');
+                        add('NEW_DEBT', 'Появилась задолженность ФССП', '0 ₽', current.fssp_debt.toLocaleString() + ' ₽');
                     }
-                    if (prevDebt > 0 && current.fssp_debt >= prevDebt * 3) {
-                        this.addAnomaly(c, 'DEBT_SPIKE', `Задолженность выросла в ${Math.round(current.fssp_debt / prevDebt)} раз`, prevDebt.toLocaleString() + ' ₽', current.fssp_debt.toLocaleString() + ' ₽');
+                    if (prevDebt > 0 && current.fssp_debt >= prevDebt * 2.5) {
+                        add('DEBT_SPIKE', `Задолженность выросла в ${Math.round(current.fssp_debt / prevDebt)} раз`, prevDebt.toLocaleString() + ' ₽', current.fssp_debt.toLocaleString() + ' ₽');
                     }
-                    if (current.is_bankrupt && prevRisk !== null) {
-                        this.addAnomaly(c, 'BANKRUPTCY', 'Начата процедура банкротства', 'Нет', 'Да');
+                    if (current.is_bankrupt && (prevRisk === null || prevRisk < 80)) {
+                        add('BANKRUPTCY', 'Начата процедура банкротства', 'Нет', 'Да');
                     }
-                    if (prevCases > 0 && current.court_cases >= prevCases + 5) {
-                        this.addAnomaly(c, 'COURT_SPIKE', `Рост судебных дел на +${current.court_cases - prevCases}`, prevCases, current.court_cases);
+                    if (prevCases > 0 && current.court_cases >= prevCases + 4) {
+                        add('COURT_SPIKE', `Рост судебных дел на +${current.court_cases - prevCases}`, prevCases, current.court_cases);
                     }
                 },
                 
-                addAnomaly(c, type, description, oldVal, newVal) {
-                    this.anomalies.push({
-                        date: new Date().toLocaleString('ru-RU'),
-                        inn: c.inn, name: c.name, type, description,
-                        old_value: String(oldVal), new_value: String(newVal)
-                    });
+                anomalyTypeText(type) {
+                    const t = { RISK_SPIKE: 'Риск', NEW_DEBT: 'Долг', DEBT_SPIKE: 'Долги', BANKRUPTCY: 'Банкротство', COURT_SPIKE: 'Суды' };
+                    return t[type] || type;
                 },
                 
                 highRiskCount() { return this.contractors.filter(c => c.risk && c.risk >= 60).length; },
                 
                 addDemoData() {
-                    ['7736207543', '7707270050', '5029255630', '1234567890'].forEach(inn => {
+                    const demos = [
+                        '7736207543', '7707270050', '7707083893', '5029255630',
+                        '1234567890', '6677990011', '7712345678', '7801234567',
+                        '7723456789', '5001234567', '5501234567', '7701123456',
+                        '7702234567', '7703345678', '7704456789', '7705567890',
+                        '7706678901', '7707789012', '7708890123', '7709901234',
+                        '7710012345', '7711123456', '7712234567', '7713345678',
+                        '7714456789', '7715567890', '7800987654', '5000987654',
+                    ];
+                    
+                    for (const inn of demos) {
                         if (!this.contractors.find(c => c.inn === inn)) {
-                            this.newInn = inn; this.addContractor();
+                            this.newInn = inn;
+                            this.addContractor();
                         }
-                    });
-                    this.lastAdded = 'Демо-данные загружены';
+                    }
+                    this.lastAdded = `✓ Загружено ${demos.length} компаний`;
                 },
                 
                 clearAll() {
                     if (confirm('Удалить все данные?')) {
-                        this.contractors = []; this.anomalies = [];
+                        this.contractors = [];
+                        this.anomalies = [];
                         localStorage.removeItem('contractor_data');
                     }
                 },
