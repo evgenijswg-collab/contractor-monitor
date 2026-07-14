@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг контрагентов</title>
+    
+    <!-- Tailwind + Alpine + Chart.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        
+        /* Анимации */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.5); } 50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.8); } }
+        
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        .pulse { animation: pulse 2s infinite; }
+        .glow { animation: glow 2s infinite; }
+        
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e1e2e; }
+        ::-webkit-scrollbar-thumb { background: #3b3b52; border-radius: 3px; }
+        
+        /* Градиенты */
+        .gradient-bg { background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%); }
+        .gradient-card { background: linear-gradient(135deg, rgba(30,30,50,0.8), rgba(20,20,40,0.9)); }
+        .gradient-accent { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .gradient-success { background: linear-gradient(135deg, #22c55e, #10b981); }
+        .gradient-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .gradient-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        
+        /* Стеклянный эффект */
+        .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
+        .glass-hover:hover { background: rgba(255,255,255,0.06); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-gray-100" x-data="app()" x-init="init()">
+    
+    <!-- Шапка -->
+    <header class="border-b border-gray-800/50 glass sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 gradient-accent rounded-xl flex items-center justify-center text-xl">🛡️</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Контрагент-Монитор</h1>
+                    <p class="text-xs text-gray-400">Система анализа надёжности</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Статус проверки -->
+                <div class="flex items-center gap-2 text-sm" x-show="isChecking">
+                    <div class="w-2 h-2 bg-yellow-400 rounded-full pulse"></div>
+                    <span class="text-gray-400" x-text="`Проверка ${checkProgress}...`"></span>
+                </div>
+                
+                <!-- Кнопка проверки -->
+                <button @click="checkAll()" 
+                        :disabled="isChecking || contractors.length === 0"
+                        class="gradient-accent px-6 py-2.5 rounded-xl font-medium text-sm hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/25">
+                    ⚡ Проверить всех
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Основной контент -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        
+        <!-- Статистика -->
+        <div class="grid grid-cols-4 gap-4 mb-8 fade-in">
+            <div class="glass rounded-2xl p-5">
+                <p class="text-gray-400 text-sm mb-1">Наблюдаем</p>
+                <p class="text-3xl font-bold" x-text="contractors.length">0</p>
+                <p class="text-xs text-gray-500 mt-1">контрагентов</p>
+            </div>
+            <div class="glass rounded-2xl p-5">
+                <p class="text-gray-400 text-sm mb-1">Высокий риск</p>
+                <p class="text-3xl font-bold text-red-400" x-text="highRiskCount()">0</p>
+                <p class="text-xs text-gray-500 mt-1">требуют внимания</p>
+            </div>
+            <div class="glass rounded-2xl p-5">
+                <p class="text-gray-400 text-sm mb-1">Проверок сегодня</p>
+                <p class="text-3xl font-bold text-indigo-400" x-text="todayChecks()">0</p>
+                <p class="text-xs text-gray-500 mt-1">за сегодня</p>
+            </div>
+            <div class="glass rounded-2xl p-5">
+                <p class="text-gray-400 text-sm mb-1">Аномалий</p>
+                <p class="text-3xl font-bold text-orange-400" x-text="anomalies.length">0</p>
+                <p class="text-xs text-gray-500 mt-1">за всё время</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-6">
+            
+            <!-- ЛЕВАЯ КОЛОНКА: Добавление -->
+            <div class="space-y-6">
+                
+                <!-- Ввод ИНН -->
+                <div class="glass rounded-2xl p-6 fade-in">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
+                        Добавить контрагента
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <input type="text" 
+                               x-model="newInn" 
+                               @keyup.enter="addContractor()"
+                               placeholder="Введите ИНН (10 или 12 цифр)"
+                               maxlength="12"
+                               class="w-full bg-gray-900/50 border border-gray-700/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 transition-all duration-200 placeholder-gray-600">
+                        
+                        <button @click="addContractor()"
+                                :disabled="!newInn || newInn.length < 10"
+                                class="w-full gradient-accent py-3 rounded-xl font-medium text-sm hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            ➕ Добавить
+                        </button>
+                        
+                        <p class="text-xs text-gray-500 text-center" x-show="lastAdded">
+                            ✅ Добавлен: <span x-text="lastAdded"></span>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Быстрые действия -->
+                <div class="glass rounded-2xl p-6 fade-in">
+                    <h2 class="text-lg font-semibold mb-4">Быстрые действия</h2>
+                    
+                    <div class="space-y-2">
+                        <button @click="addDemoData()" 
+                                class="w-full text-left px-4 py-2.5 rounded-xl text-sm glass-hover transition-all duration-200">
+                            🧪 Добавить демо-компании
+                        </button>
+                        <button @click="clearAll()" 
+                                class="w-full text-left px-4 py-2.5 rounded-xl text-sm glass-hover transition-all duration-200 text-red-400">
+                            🗑️ Очистить все данные
+                        </button>
+                        <button @click="exportData()" 
+                                class="w-full text-left px-4 py-2.5 rounded-xl text-sm glass-hover transition-all duration-200">
+                            📥 Экспорт в JSON
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ЦЕНТР + ПРАВО: Контрагенты и Аномалии -->
+            <div class="col-span-2 space-y-6">
+                
+                <!-- Таблица контрагентов -->
+                <div class="glass rounded-2xl p-6 fade-in">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                        Контрагенты на наблюдении
+                        <span class="text-sm text-gray-400 ml-auto" x-text="contractors.length + ' шт.'"></span>
+                    </h2>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm" x-show="contractors.length > 0">
+                            <thead>
+                                <tr class="text-gray-400 border-b border-gray-800">
+                                    <th class="text-left py-3 px-4 font-medium">ИНН</th>
+                                    <th class="text-left py-3 px-4 font-medium">Название</th>
+                                    <th class="text-left py-3 px-4 font-medium">Риск</th>
+                                    <th class="text-left py-3 px-4 font-medium">Статус</th>
+                                    <th class="text-left py-3 px-4 font-medium">Долги ФССП</th>
+                                    <th class="text-left py-3 px-4 font-medium">Суды</th>
+                                    <th class="text-right py-3 px-4 font-medium"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="(c, idx) in contractors" :key="c.inn">
+                                    <tr class="border-b border-gray-800/50 glass-hover transition-all duration-200 slide-in">
+                                        <td class="py-3 px-4 font-mono" x-text="c.inn"></td>
+                                        <td class="py-3 px-4" x-text="c.name || '—'"></td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 rounded-lg text-xs font-medium"
+                                                  :class="riskColor(c.risk)">
+                                                <span x-text="c.risk || '—'"></span>/100
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <span class="flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full"
+                                                      :class="statusDot(c.status)"></span>
+                                                <span x-text="statusText(c.status)"></span>
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4" x-text="c.fssp_debt ? c.fssp_debt.toLocaleString() + ' ₽' : '—'"></td>
+                                        <td class="py-3 px-4" x-text="c.court_cases || '—'"></td>
+                                        <td class="py-3 px-4 text-right">
+                                            <button @click="removeContractor(idx)" 
+                                                    class="text-gray-500 hover:text-red-400 transition-colors duration-200">
+                                                ✕
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        
+                        <div x-show="contractors.length === 0" class="text-center py-12 text-gray-500">
+                            <div class="text-4xl mb-3">📭</div>
+                            <p class="text-sm">Нет контрагентов на наблюдении</p>
+                            <p class="text-xs mt-1">Добавьте первый ИНН слева</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Аномалии -->
+                <div class="glass rounded-2xl p-6 fade-in">
+                    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-red-400 rounded-full" 
+                              :class="anomalies.length > 0 ? 'pulse' : ''"></span>
+                        Аномалии
+                        <span class="text-sm text-red-400 ml-auto" 
+                              x-show="anomalies.length > 0"
+                              x-text="anomalies.length + ' шт.'"></span>
+                    </h2>
+                    
+                    <div class="space-y-2" x-show="anomalies.length > 0">
+                        <template x-for="a in anomalies.slice().reverse()" :key="a.date + a.inn">
+                            <div class="glass-hover rounded-xl p-4 border-l-4 transition-all duration-200"
+                                 :class="anomalyBorder(a.type)">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs text-gray-400" x-text="a.date"></span>
+                                            <span class="px-2 py-0.5 rounded-md text-xs font-medium"
+                                                  :class="anomalyBadge(a.type)"
+                                                  x-text="anomalyType(a.type)"></span>
+                                        </div>
+                                        <p class="text-sm font-medium" x-text="a.name"></p>
+                                        <p class="text-sm text-gray-400 mt-0.5" x-text="a.description"></p>
+                                    </div>
+                                    <div class="text-right text-xs text-gray-500">
+                                        <div x-text="'Было: ' + a.old_value"></div>
+                                        <div class="text-red-400" x-text="'Стало: ' + a.new_value"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <div x-show="anomalies.length === 0" class="text-center py-8 text-gray-500">
+                        <div class="text-3xl mb-2">✅</div>
+                        <p class="text-sm">Аномалий не обнаружено</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- JavaScript -->
+    <script>
+        function app() {
+            return {
+                newInn: '',
+                lastAdded: '',
+                contractors: [],
+                anomalies: [],
+                isChecking: false,
+                checkProgress: '',
+                
+                init() {
+                    // Загружаем данные из localStorage
+                    const saved = localStorage.getItem('contractor_data');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.contractors = data.contractors || [];
+                        this.anomalies = data.anomalies || [];
+                    }
+                },
+                
+                save() {
+                    localStorage.setItem('contractor_data', JSON.stringify({
+                        contractors: this.contractors,
+                        anomalies: this.anomalies
+                    }));
+                },
+                
+                addContractor() {
+                    const inn = this.newInn.trim();
+                    if (!inn || inn.length < 10) return;
+                    
+                    // Проверяем, нет ли уже такого ИНН
+                    if (this.contractors.find(c => c.inn === inn)) {
+                        this.lastAdded = '⚠️ Уже в списке';
+                        return;
+                    }
+                    
+                    // Ищем название компании (имитация API)
+                    const name = this.getCompanyName(inn);
+                    
+                    this.contractors.push({
+                        inn: inn,
+                        name: name,
+                        risk: null,
+                        status: null,
+                        fssp_debt: null,
+                        court_cases: null,
+                        added: new Date().toISOString()
+                    });
+                    
+                    this.lastAdded = name;
+                    this.newInn = '';
+                    this.save();
+                },
+                
+                getCompanyName(inn) {
+                    // Имитация запроса к API ФНС
+                    const demo = {
+                        '7736207543': 'ООО Яндекс',
+                        '7707270050': 'ООО Сбербанк-Сервис',
+                        '7707083893': 'ПАО Сбербанк',
+                        '5029255630': 'ООО Рога и Копыта',
+                        '1234567890': 'ООО Однодневка',
+                        '0987654321': 'ООО Вектор',
+                        '1122334455': 'ИП Иванов И.И.',
+                        '6677990011': 'ООО СтройГарант',
+                    };
+                    
+                    if (demo[inn]) return demo[inn];
+                    
+                    // Генерируем название для неизвестных ИНН
+                    const prefixes = ['ООО', 'ЗАО', 'ИП', 'АО'];
+                    const names = ['ТехноПром', 'ИнвестГрупп', 'ТоргСервис', 'СтройМонтаж', 'ИТ-Решения'];
+                    return prefixes[Math.floor(Math.random() * prefixes.length)] + ' ' + 
+                           names[Math.floor(Math.random() * names.length)];
+                },
+                
+                removeContractor(idx) {
+                    this.contractors.splice(idx, 1);
+                    this.save();
+                },
+                
+                async checkAll() {
+                    if (this.isChecking || this.contractors.length === 0) return;
+                    
+                    this.isChecking = true;
+                    
+                    for (let i = 0; i < this.contractors.length; i++) {
+                        this.checkProgress = `${i + 1}/${this.contractors.length}`;
+                        
+                        // Имитация запроса к API
+                        await this.sleep(500 + Math.random() * 1000);
+                        
+                        const prevRisk = this.contractors[i].risk;
+                        const prevDebt = this.contractors[i].fssp_debt || 0;
+                        const prevCases = this.contractors[i].court_cases || 0;
+                        
+                        // Генерируем результаты проверки
+                        const check = this.simulateCheck(this.contractors[i].inn);
+                        
+                        // Обновляем данные контрагента
+                        this.contractors[i].risk = check.risk;
+                        this.contractors[i].status = check.status;
+                        this.contractors[i].fssp_debt = check.fssp_debt;
+                        this.contractors[i].court_cases = check.court_cases;
+                        this.contractors[i].last_check = new Date().toISOString();
+                        
+                        // Проверяем аномалии
+                        this.detectAnomalies(this.contractors[i], prevRisk, prevDebt, prevCases, check);
+                    }
+                    
+                    this.isChecking = false;
+                    this.checkProgress = '';
+                    this.save();
+                },
+                
+                simulateCheck(inn) {
+                    // Имитация реальной проверки (в продакшене — API)
+                    const seed = inn.split('').reduce((a, b) => a + parseInt(b), 0);
+                    const rng = (min, max) => Math.floor(((seed * 137 + Date.now() % 1000) % 100) / 100 * (max - min) + min);
+                    
+                    const fssp_debt = rng(0, 100) < 20 ? rng(50000, 2000000) : 0;
+                    const court_cases = rng(0, 15);
+                    const is_bankrupt = rng(0, 100) < 2;
+                    
+                    let risk = 0;
+                    if (fssp_debt > 500000) risk += 30;
+                    else if (fssp_debt > 0) risk += 15;
+                    if (court_cases > 8) risk += 25;
+                    else if (court_cases > 3) risk += 10;
+                    if (is_bankrupt) risk += 50;
+                    risk += rng(0, 20);
+                    risk = Math.min(100, Math.max(1, risk));
+                    
+                    return {
+                        risk,
+                        status: risk < 30 ? 'OK' : risk < 60 ? 'WARNING' : 'DANGER',
+                        fssp_debt,
+                        court_cases,
+                        is_bankrupt
+                    };
+                },
+                
+                detectAnomalies(contractor, prevRisk, prevDebt, prevCases, current) {
+                    const now = new Date().toLocaleString('ru-RU');
+                    
+                    // Рост риска
+                    if (prevRisk !== null && current.risk - prevRisk >= 20) {
+                        this.addAnomaly(contractor, 'RISK_SPIKE', 
+                            `Риск вырос с ${prevRisk} до ${current.risk}`, prevRisk, current.risk);
+                    }
+                    
+                    // Новый долг
+                    if (prevDebt === 0 && current.fssp_debt > 0) {
+                        this.addAnomaly(contractor, 'NEW_DEBT',
+                            `Появились долги ФССП`, '0 ₽', current.fssp_debt.toLocaleString() + ' ₽');
+                    }
+                    
+                    // Рост долга в 3+ раза
+                    if (prevDebt > 0 && current.fssp_debt >= prevDebt * 3) {
+                        this.addAnomaly(contractor, 'DEBT_SPIKE',
+                            `Долги выросли в ${Math.round(current.fssp_debt / prevDebt)} раз`,
+                            prevDebt.toLocaleString() + ' ₽', current.fssp_debt.toLocaleString() + ' ₽');
+                    }
+                    
+                    // Банкротство
+                    if (current.is_bankrupt && prevRisk !== null) {
+                        this.addAnomaly(contractor, 'BANKRUPTCY',
+                            'Начата процедура банкротства!', 'Нет', 'Да');
+                    }
+                    
+                    // Рост судов
+                    if (prevCases > 0 && current.court_cases >= prevCases + 5) {
+                        this.addAnomaly(contractor, 'COURT_SPIKE',
+                            `Рост судебных дел на +${current.court_cases - prevCases}`,
+                            prevCases, current.court_cases);
+                    }
+                },
+                
+                addAnomaly(contractor, type, description, oldVal, newVal) {
+                    this.anomalies.push({
+                        date: new Date().toLocaleString('ru-RU'),
+                        inn: contractor.inn,
+                        name: contractor.name,
+                        type,
+                        description,
+                        old_value: String(oldVal),
+                        new_value: String(newVal)
+                    });
+                },
+                
+                // Хелперы для UI
+                riskColor(risk) {
+                    if (!risk) return 'bg-gray-700/50 text-gray-400';
+                    if (risk < 30) return 'bg-green-500/10 text-green-400';
+                    if (risk < 60) return 'bg-yellow-500/10 text-yellow-400';
+                    return 'bg-red-500/10 text-red-400';
+                },
+                
+                statusDot(status) {
+                    if (status === 'OK') return 'bg-green-400';
+                    if (status === 'WARNING') return 'bg-yellow-400';
+                    if (status === 'DANGER') return 'bg-red-400';
+                    return 'bg-gray-600';
+                },
+                
+                statusText(status) {
+                    if (status === 'OK') return 'OK';
+                    if (status === 'WARNING') return 'Внимание';
+                    if (status === 'DANGER') return 'Опасно';
+                    return '—';
+                },
+                
+                anomalyBorder(type) {
+                    if (type === 'BANKRUPTCY') return 'border-red-500';
+                    if (type.includes('DEBT')) return 'border-orange-500';
+                    return 'border-yellow-500';
+                },
+                
+                anomalyBadge(type) {
+                    if (type === 'BANKRUPTCY') return 'bg-red-500/10 text-red-400';
+                    if (type.includes('DEBT')) return 'bg-orange-500/10 text-orange-400';
+                    return 'bg-yellow-500/10 text-yellow-400';
+                },
+                
+                anomalyType(type) {
+                    const types = {
+                        'RISK_SPIKE': 'Рост риска',
+                        'NEW_DEBT': 'Новый долг',
+                        'DEBT_SPIKE': 'Рост долга',
+                        'BANKRUPTCY': 'Банкротство',
+                        'COURT_SPIKE': 'Рост судов'
+                    };
+                    return types[type] || type;
+                },
+                
+                highRiskCount() {
+                    return this.contractors.filter(c => c.risk && c.risk >= 60).length;
+                },
+                
+                todayChecks() {
+                    const today = new Date().toDateString();
+                    return this.contractors.filter(c => {
+                        if (!c.last_check) return false;
+                        return new Date(c.last_check).toDateString() === today;
+                    }).length;
+                },
+                
+                addDemoData() {
+                    const demos = [
+                        '7736207543',  // Яндекс
+                        '7707270050',  // Сбер
+                        '5029255630',  // Рога и Копыта
+                        '1234567890',  // Однодневка
+                        '6677990011',  // СтройГарант
+                    ];
+                    
+                    for (const inn of demos) {
+                        if (!this.contractors.find(c => c.inn === inn)) {
+                            this.newInn = inn;
+                            this.addContractor();
+                        }
+                    }
+                    
+                    this.lastAdded = 'Демо-компании добавлены';
+                },
+                
+                clearAll() {
+                    if (confirm('Удалить все данные?')) {
+                        this.contractors = [];
+                        this.anomalies = [];
+                        localStorage.removeItem('contractor_data');
+                    }
+                },
+                
+                exportData() {
+                    const data = JSON.stringify({
+                        contractors: this.contractors,
+                        anomalies: this.anomalies
+                    }, null, 2);
+                    
+                    const blob = new Blob([data], {type: 'application/json'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `contractors_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                },
+                
+                sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
