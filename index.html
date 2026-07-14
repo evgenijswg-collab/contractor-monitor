@@ -70,8 +70,23 @@
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-secondary { background: var(--white); color: var(--text); border: 1px solid var(--border); }
         .btn-secondary:hover { background: #f9fafb; }
-        .btn-danger { background: none; color: var(--danger); padding: 4px 8px; font-size: 11px; }
-        .btn-danger:hover { background: var(--danger-bg); border-radius: 4px; }
+        
+        /* Кнопка удаления — иконка */
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1;
+            transition: all 0.15s;
+        }
+        .btn-delete:hover {
+            color: #ef4444;
+            background: #fef2f2;
+        }
         
         .stat {
             text-align: center;
@@ -281,7 +296,7 @@
                         <button class="btn-demo" @click="addDemoData()">
                             Загрузить демо-данные (28 компаний)
                         </button>
-                        <button class="btn-demo" @click="clearAll()" style="color: var(--danger);">
+                        <button class="btn-demo" @click="clearAll()" style="color: var(--danger); border-color: #fecaca;">
                             Очистить всё
                         </button>
                     </div>
@@ -305,7 +320,7 @@
                                 <th style="width: 90px;">Статус</th>
                                 <th style="width: 110px;">Задолженность</th>
                                 <th style="width: 50px;">Суды</th>
-                                <th style="width: 60px;"></th>
+                                <th style="width: 40px;"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -328,8 +343,13 @@
                                     </td>
                                     <td x-text="c.fssp_debt ? c.fssp_debt.toLocaleString() + ' ₽' : '—'"></td>
                                     <td x-text="c.court_cases || '—'"></td>
-                                    <td>
-                                        <button class="btn-danger" @click="removeContractor(idx)">Удалить</button>
+                                    <td style="text-align: center;">
+                                        <button class="btn-delete" @click="removeContractor(idx)" title="Удалить">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        </button>
                                     </td>
                                 </tr>
                             </template>
